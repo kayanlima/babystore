@@ -1,0 +1,121 @@
+<!-- arquivo: passeio.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passeio - Jaciara Baby & Kids</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Fredoka', sans-serif; background-color: #fffaf5; color: #7B3FA2; }
+    header { background: #ffffff; padding: 10px 20px; display:flex; justify-content: space-between; align-items:center; border-bottom: 3px solid #F99F38; }
+    .logo { height:40px; }
+    nav a { margin-right:16px; text-decoration:none; color:#7B3FA2; font-weight:600; font-size:14px; }
+    nav a:hover { color:#EF5FA2; }
+    main { padding:20px; }
+    h1 { font-size: 28px; color: #EF5FA2; margin-bottom: 12px; }
+    p { font-size: 16px; margin-bottom: 16px; }
+    a.button { display:inline-block; color:#F4A72B; text-decoration:none; font-weight:600; }
+    /* Products grid */
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; padding:20px; }
+    .card { background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); padding:10px; text-align:center; }
+    .card img { max-width:100%; border-radius:4px; height:150px; object-fit:cover; }
+    .card h3 { font-size:18px; color:#6A2E98; margin:8px 0; }
+    .card p { font-size:14px; color:#505050; margin:4px 0; }
+    .price { font-weight:bold; color:#333; margin:8px 0; }
+    .delete { background:transparent; border:none; color:#E74C3C; cursor:pointer; }
+    /* Modal */
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000; }
+    .modal.open { display:flex; }
+    .modal-content { background:#fff; padding:20px; border-radius:8px; width:90%; max-width:400px; position:relative; }
+    .modal-content h2 { margin-bottom:12px; color:#EF5FA2; }
+    .modal-content input, .modal-content textarea, .modal-content button { width:100%; margin:6px 0; padding:8px; }
+    .close { position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer; color:#aaa; }
+    .close:hover { color:#000; }
+    footer { text-align:center; padding:20px; background:#FDE6F2; color:#7B3FA2; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo-jaciara.png" alt="Logo" class="logo">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="#" id="admin-btn">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Produtos para Passeio</h1>
+    <p>Explore nossa linha de carrinhos, cadeirinhas e acessórios para o conforto do seu bebê nos passeios.</p>
+    <div class="grid" id="products"></div>
+  </main>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-close="login-modal">&times;</span>
+      <h2>Login Admin</h2>
+      <input id="user" placeholder="Usuário">
+      <input id="pass" type="password" placeholder="Senha">
+      <button id="login">Entrar</button>
+    </div>
+  </div>
+  <!-- Admin Panel -->
+  <div id="panel-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-close="panel-modal">&times;</span>
+      <h2>Adicionar Produto</h2>
+      <input id="prod-name" placeholder="Nome do Produto">
+      <input id="prod-img" placeholder="URL da Imagem">
+      <input id="prod-price" placeholder="Preço">
+      <textarea id="prod-desc" rows="3" placeholder="Descrição"></textarea>
+      <button id="add-prod">Salvar</button>
+    </div>
+  </div>
+
+  <footer>
+    Projeto de exemplo para a loja Jaciara Baby & Kids.<br>Todos os direitos reservados.
+  </footer>
+
+<script>
+  // Data
+  let prods = JSON.parse(localStorage.getItem('passeioProds'))||[];
+  const render = () => {
+    const c = document.getElementById('products'); c.innerHTML='';
+    prods.forEach((p,i)=>{
+      const d=document.createElement('div'); d.className='card';
+      d.innerHTML = `<img src="${p.img}" alt=""><h3>${p.name}</h3><p>${p.desc}</p><div class="price">R$ ${parseFloat(p.price).toFixed(2)}</div><button class="delete" data-index="${i}">Excluir</button>`;
+      c.appendChild(d);
+    });
+    document.querySelectorAll('.delete').forEach(b=>b.onclick=()=>{
+      prods.splice(b.dataset.index,1);
+      localStorage.setItem('passeioProds',JSON.stringify(prods)); render();
+    });
+  };
+  render();
+  // Modal helpers
+  const open=(id)=>document.getElementById(id).classList.add('open');
+  const closeAll=()=>document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));
+  document.getElementById('admin-btn').onclick=()=>open('login-modal');
+  document.querySelectorAll('.close').forEach(x=>x.onclick=()=>closeAll());
+  document.getElementById('login').onclick=()=>{
+    if(document.getElementById('user').value==='admin'&&document.getElementById('pass').value==='senha123'){
+      closeAll(); open('panel-modal');
+    } else alert('Credenciais inválidas');
+  };
+  document.getElementById('add-prod').onclick=()=>{
+    const name=document.getElementById('prod-name').value.trim();
+    const img=document.getElementById('prod-img').value.trim();
+    const price=document.getElementById('prod-price').value.trim();
+    const desc=document.getElementById('prod-desc').value.trim();
+    if(name&&img&&price&&desc){
+      prods.push({name,img,price,desc});
+      localStorage.setItem('passeioProds',JSON.stringify(prods));
+      closeAll(); render();
+    } else alert('Preencha todos os campos');
+  };
+  window.onclick=e=>{ if(e.target.classList.contains('modal')) closeAll(); };
+</script>
+</body>
+</html>
