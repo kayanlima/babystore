@@ -30,7 +30,7 @@
     .card-buttons button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
     .edit-btn { background: #F4A72B; color: #fff; }
     .cart-btn { background: #6A2E98; color: #fff; }
-    .delete { background: transparent; border: none; color: #E74C3C; cursor: pointer; }
+    .delete-btn { background: transparent; border: none; color: #E74C3C; cursor: pointer; }
     /* Modal Styles */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; }
     .modal.open { display: flex; }
@@ -67,7 +67,7 @@
   </header>
 
   <main>
-    <h1>Roupas Infantis</h1>
+    <h1>Roupas Infantis</n1>
     <p>Descubra nossa coleção de roupas para bebês e crianças, com conforto, qualidade e muito charme.</p>
     <div class="grid" id="products"></div>
   </main>
@@ -86,7 +86,7 @@
   <div id="panel-modal" class="modal">
     <div class="modal-content">
       <span class="close" data-close="panel-modal">&times;</span>
-      <h2>Adicionar / Editar Produto</h2>
+      <h2>Adicionar / Editar Produto</n2>
       <input id="prod-id" type="hidden">
       <input id="prod-name" placeholder="Nome do Produto">
       <input id="prod-img" placeholder="URL da Imagem">
@@ -112,9 +112,10 @@
   </footer>
 
 <script>
-  // Dados de produtos de Roupas no localStorage
+  // State
   let prods = JSON.parse(localStorage.getItem('roupasProds')) || [];
   let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let isAdmin = false; // controla visibilidade de editar/excluir
 
   // Render produtos na grid
   function render() {
@@ -122,38 +123,49 @@
     c.innerHTML = '';
     prods.forEach((p, i) => {
       const card = document.createElement('div'); card.className = 'card';
+      let buttonsHTML = `<button class="cart-btn" data-index="${i}"><i class="fas fa-cart-plus"></i></button>`;
+      if (isAdmin) {
+        buttonsHTML = `
+          <button class="edit-btn" data-index="${i}"><i class="fas fa-edit"></i></button>
+          <button class="delete-btn" data-index="${i}"><i class="fas fa-trash"></i></button>
+          ${buttonsHTML}
+        `;
+      }
       card.innerHTML = `
         <img src="${p.img}" alt="${p.name}">
         <h3>${p.name}</h3>
         <p>${p.desc}</p>
         <div class="price">R$ ${parseFloat(p.price).toFixed(2)}</div>
-        <div class="card-buttons">
-          <button class="edit-btn" data-index="${i}"><i class="fas fa-edit"></i></button>
-          <button class="cart-btn" data-index="${i}"><i class="fas fa-cart-plus"></i></button>
-          <button class="delete" data-index="${i}"><i class="fas fa-trash"></i></button>
-        </div>
+        <div class="card-buttons">${buttonsHTML}</div>
       `;
       c.appendChild(card);
     });
-    // Adicionar listeners
-    document.querySelectorAll('.delete').forEach(btn => {
-      btn.onclick = () => {
-        prods.splice(btn.dataset.index, 1);
-        localStorage.setItem('roupasProds', JSON.stringify(prods)); render();
-      };
-    });
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-      btn.onclick = () => {
-        const idx = btn.dataset.index;
-        const p = prods[idx];
-        document.getElementById('prod-id').value = idx;
-        document.getElementById('prod-name').value = p.name;
-        document.getElementById('prod-img').value = p.img;
-        document.getElementById('prod-price').value = p.price;
-        document.getElementById('prod-desc').value = p.desc;
-        open('panel-modal');
-      };
-    });
+    attachProductListeners();
+  }
+
+  // Anexa listeners para botões dinamicamente
+  function attachProductListeners() {
+    if (isAdmin) {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = () => {
+          prods.splice(btn.dataset.index, 1);
+          localStorage.setItem('roupasProds', JSON.stringify(prods));
+          render();
+        };
+      });
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.onclick = () => {
+          const idx = btn.dataset.index;
+          const p = prods[idx];
+          document.getElementById('prod-id').value = idx;
+          document.getElementById('prod-name').value = p.name;
+          document.getElementById('prod-img').value = p.img;
+          document.getElementById('prod-price').value = p.price;
+          document.getElementById('prod-desc').value = p.desc;
+          open('panel-modal');
+        };
+      });
+    }
     document.querySelectorAll('.cart-btn').forEach(btn => {
       btn.onclick = () => {
         const product = prods[btn.dataset.index];
@@ -166,8 +178,8 @@
 
   // Render carrinho
   function renderCart() {
-    const cartItemsContainer = document.getElementById('cart-items');
-    cartItemsContainer.innerHTML = '';
+    const container = document.getElementById('cart-items');
+    container.innerHTML = '';
     cart.forEach((item, i) => {
       const div = document.createElement('div'); div.className = 'cart-item';
       div.innerHTML = `
@@ -175,7 +187,7 @@
         <span>${item.name} - R$ ${parseFloat(item.price).toFixed(2)}</span>
         <button class="remove-cart" data-index="${i}"><i class="fas fa-trash"></i></button>
       `;
-      cartItemsContainer.appendChild(div);
+      container.appendChild(div);
     });
     document.querySelectorAll('.remove-cart').forEach(btn => {
       btn.onclick = () => {
@@ -189,17 +201,21 @@
   // Modal helpers
   const open = id => document.getElementById(id).classList.add('open');
   const closeAll = () => document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+
   document.getElementById('admin-btn').onclick = () => open('login-modal');
   document.getElementById('cart-link').onclick = () => open('cart-modal');
   document.querySelectorAll('.close').forEach(x => x.onclick = () => closeAll());
   window.onclick = e => { if (e.target.classList.contains('modal')) closeAll(); };
 
-  // Login e abrir painel
+  // Login e ativar modo admin
   document.getElementById('login').onclick = () => {
     if (document.getElementById('user').value === 'admin' && document.getElementById('pass').value === 'senha123') {
-      closeAll(); open('panel-modal');
+      isAdmin = true;
+      closeAll();
+      render(); // re-render para mostrar botões de editar/excluir
     } else alert('Credenciais inválidas');
   };
+
   // Adicionar / Editar produto
   document.getElementById('add-prod').onclick = () => {
     const idx = document.getElementById('prod-id').value;
@@ -222,6 +238,7 @@
       document.getElementById('prod-desc').value = '';
     } else alert('Preencha todos os campos');
   };
+
   // Finalizar compra: esvazia carrinho
   document.getElementById('checkout-btn').onclick = () => {
     if (cart.length === 0) { alert('Carrinho vazio'); return; }
@@ -237,3 +254,4 @@
 </script>
 </body>
 </html>
+
