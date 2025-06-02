@@ -67,7 +67,7 @@
   </header>
 
   <main>
-    <h1>Roupas Infantis</n1>
+    <h1>Roupas Infantis</h1>
     <p>Descubra nossa coleção de roupas para bebês e crianças, com conforto, qualidade e muito charme.</p>
     <div class="grid" id="products"></div>
   </main>
@@ -86,7 +86,7 @@
   <div id="panel-modal" class="modal">
     <div class="modal-content">
       <span class="close" data-close="panel-modal">&times;</span>
-      <h2>Adicionar / Editar Produto</n2>
+      <h2>Adicionar / Editar Produto</h2>
       <input id="prod-id" type="hidden">
       <input id="prod-name" placeholder="Nome do Produto">
       <input id="prod-img" placeholder="URL da Imagem">
@@ -154,8 +154,8 @@
         };
       });
       document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.onclick = () => {
-          const idx = btn.dataset.index;
+        btn.onclick = () =>
+n          const idx = btn.dataset.index;
           const p = prods[idx];
           document.getElementById('prod-id').value = idx;
           document.getElementById('prod-name').value = p.name;
@@ -239,14 +239,24 @@
     } else alert('Preencha todos os campos');
   };
 
-  // Finalizar compra: esvazia carrinho
+  // Finalizar compra: enviar lista ao WhatsApp e esvaziar carrinho
   document.getElementById('checkout-btn').onclick = () => {
     if (cart.length === 0) { alert('Carrinho vazio'); return; }
+    // Montar mensagem com itens
+    let msg = 'Olá, gostaria de realizar o pedido:';
+    cart.forEach(item => {
+      msg += `\n- ${item.name} (R$ ${parseFloat(item.price).toFixed(2)})`;
+    });
+    // URL encode
+    const encoded = encodeURIComponent(msg);
+    // Número do WhatsApp da empresa (formato internacional sem +, ex: 5583996138889)
+    const waNumber = '5583996138889';
+    window.open(`https://wa.me/${waNumber}?text=${encoded}`, '_blank');
+    // Esvaziar carrinho
     cart = [];
     localStorage.setItem('cart', JSON.stringify(cart));
     renderCart();
     closeAll();
-    alert('Compra finalizada!');
   };
 
   // Inicialização
@@ -254,4 +264,3 @@
 </script>
 </body>
 </html>
-
