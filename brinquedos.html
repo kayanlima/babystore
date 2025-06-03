@@ -17,11 +17,9 @@
     nav a.active { color:#EF5FA2; }
     .cart-icon { font-size:20px; color:#6A2E98; cursor:pointer; margin-left:8px; }
 
-    /* Main content */
     main { padding:20px; }
     h1 { font-size:28px; color:#EF5FA2; margin-bottom:12px; text-align:center; }
     p { font-size:16px; margin-bottom:16px; text-align:center; }
-    /* Products grid: 3 columns desktop, 2 tablet, 1 mobile */
     .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; padding:20px; }
     .card { background:#fff; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); padding:10px; text-align:center; display:flex; flex-direction:column; justify-content:space-between; height:320px; }
     .card img { max-width:100%; border-radius:4px; height:150px; object-fit:cover; }
@@ -34,28 +32,24 @@
     .cart-btn { background:#6A2E98; color:#fff; }
     .delete-btn { background:transparent; border:none; color:#E74C3C; cursor:pointer; }
 
-    /* Modal Styles */
     .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000; }
     .modal.open { display:flex; }
     .modal-content { background:#fff; padding:20px; border-radius:8px; max-width:90%; width:300px; position:relative; }
     .modal-content h2 { margin-bottom:12px; color:#EF5FA2; font-size:20px; }
     .modal-content input, .modal-content textarea, .modal-content button { width:100%; margin:6px 0; padding:8px; font-size:14px; }
-    .close { position:absolute; top:8px; right:10px; font-size:24px; cursor:pointer; color:#aaa; }
+    .close { position:absolute; top:8px; right:10px; font-size:24px; font-weight:bold; cursor:pointer; color:#aaa; }
     .close:hover { color:#000; }
     .primary { background:#F99F38; color:#fff; border:none; padding:8px; border-radius:4px; cursor:pointer; }
     .primary:hover { background:#EC74A7; }
 
-    /* Cart Modal */
     #cart-items { max-height:150px; overflow-y:auto; margin-bottom:8px; }
     .cart-item { display:flex; align-items:center; margin-bottom:8px; }
     .cart-item img { width:40px; height:40px; object-fit:cover; border-radius:4px; margin-right:8px; }
     .cart-item span { flex:1; font-size:12px; }
     .cart-item button { background:transparent; border:none; color:#E74C3C; cursor:pointer; font-size:16px; }
 
-    /* Footer bar (rosa) */
-    footer { text-align:center; font-size:12px; padding:15px; background:#FDE6F2; color:#6A2E98; }
+    footer { text-align:center; font-size:12px; padding:20px; background:#FDE6F2; color:#6A2E98; }
 
-    /* Responsive adjustments */
     @media(max-width:900px) { .grid { grid-template-columns:repeat(2,1fr); } }
     @media(max-width:600px) {
       header { flex-direction:column; align-items:flex-start; }
@@ -132,54 +126,84 @@
   </footer>
 
 <script>
-  // State
-  let prods = JSON.parse(localStorage.getItem('brinquedosProds')) || [];
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
-  let isAdmin = false;
+  document.addEventListener('DOMContentLoaded', () => {
+    let prods = JSON.parse(localStorage.getItem('brinquedosProds')) || [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let isAdmin = false;
 
-  // Render products grid
-  function render() {
-    const c = document.getElementById('products'); c.innerHTML = '';
-    prods.forEach((p, i) => {
-      const card = document.createElement('div'); card.className = 'card';
-      let buttonsHTML = `<button class=\"cart-btn\" data-index=\"${i}\"><i class=\"fas fa-cart-plus\"></i></button>`;
-      if (isAdmin) {
-        buttonsHTML = `
-          <button class=\"edit-btn\" data-index=\"${i}\" style=\"font-size:14px; padding:4px;\">✎</button>
-          <button class=\"delete-btn\" data-index=\"${i}\" style=\"font-size:14px; padding:4px;\">🗑</button>
-          ${buttonsHTML}
+    function render() {
+      const c = document.getElementById('products'); c.innerHTML = '';
+      prods.forEach((p, i) => {
+        const card = document.createElement('div'); card.className = 'card';
+        let buttonsHTML = `<button class="cart-btn" data-index="${i}"><i class="fas fa-cart-plus"></i></button>`;
+        if (isAdmin) {
+          buttonsHTML = `
+            <button class="edit-btn" data-index="${i}" style="font-size:14px; padding:4px;">✎</button>
+            <button class="delete-btn" data-index="${i}" style="font-size:14px; padding:4px;">🗑</button>
+            ${buttonsHTML}
+          `;
+        }
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <div class="price">R$ ${parseFloat(p.price).toFixed(2)}</div>
+          <div class="card-buttons">${buttonsHTML}</div>
         `;
-      }
-      card.innerHTML = `
-        <img src=\"${p.img}\" alt=\"${p.name}\">    
-        <h3>${p.name}</h3>
-        <p>${p.desc}</p>
-        <div class=\"price\">R$ ${parseFloat(p.price).toFixed(2)}</div>
-        <div class=\"card-buttons\">${buttonsHTML}</div>
-      `;
-      c.appendChild(card);
-    });
-    attachProductListeners();
-  }
+        c.appendChild(card);
+      });
+      attachProductListeners();
+    }
 
-  function attachProductListeners() {
-    document.querySelectorAll('.cart-btn').forEach(btn => {
-      btn.onclick = () => {
-        const item = prods[btn.dataset.index];
-        cart.push(item);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        renderCart();
-      };
-    });
-    if (isAdmin) {
-      document.querySelectorAll('.delete-btn').forEach(btn => {
+    function attachProductListeners() {
+      document.querySelectorAll('.cart-btn').forEach(btn => {
+        btn.onclick = () => {
+          const item = prods[btn.dataset.index];
+          cart.push(item);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        };
+      });
+      if (isAdmin) {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.onclick = () => {
+            prods.splice(btn.dataset.index, 1);
+            localStorage.setItem('brinquedosProds', JSON.stringify(prods));
+            render(); renderAdminList();
+          };
+        });
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+          btn.onclick = () => {
+            const idx = btn.dataset.index;
+            const p = prods[idx];
+            document.getElementById('prod-id').value = idx;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-img').value = p.img;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-desc').value = p.desc;
+            openModal('admin-panel');
+          };
+        });
+      }
+    }
+
+    function renderAdminList() {
+      const list = document.getElementById('admin-produtos'); list.innerHTML = '';
+      prods.forEach((p, i) => {
+        const item = document.createElement('div'); item.className = 'admin-item';
+        item.innerHTML = `<span>${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
+                          <button class="admin-edit" data-index="${i}">Editar</button>
+                          <button class="admin-delete" data-index="${i}">Excluir</button>`;
+        list.appendChild(item);
+      });
+      document.querySelectorAll('.admin-delete').forEach(btn => {
         btn.onclick = () => {
           prods.splice(btn.dataset.index, 1);
           localStorage.setItem('brinquedosProds', JSON.stringify(prods));
           render(); renderAdminList();
         };
       });
-      document.querySelectorAll('.edit-btn').forEach(btn => {
+      document.querySelectorAll('.admin-edit').forEach(btn => {
         btn.onclick = () => {
           const idx = btn.dataset.index;
           const p = prods[idx];
@@ -188,84 +212,87 @@
           document.getElementById('prod-img').value = p.img;
           document.getElementById('prod-price').value = p.price;
           document.getElementById('prod-desc').value = p.desc;
-          open('admin-panel');
+          openModal('admin-panel');
         };
       });
     }
-  }
 
-  function renderAdminList() {
-    const list = document.getElementById('admin-produtos'); if (!list) return;
-    list.innerHTML = '';
-    prods.forEach((p, i) => {
-      const item = document.createElement('div'); item.className = 'admin-item';
-      item.innerHTML = `<span>${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
-                        <button class=\"admin-edit\" data-index=\"${i}\">Editar</button>
-                        <button class=\"admin-delete\" data-index=\"${i}\">Excluir</button>`;
-      list.appendChild(item);
-    });
-    document.querySelectorAll('.admin-delete').forEach(btn => {
-      btn.onclick = () => {
-        prods.splice(btn.dataset.index, 1);
-        localStorage.setItem('brinquedosProds', JSON.stringify(prods));
+    function renderCart() {
+      const cont = document.getElementById('cart-items'); cont.innerHTML = '';
+      cart.forEach((item, i) => {
+        const div = document.createElement('div'); div.className = 'cart-item';
+        div.innerHTML = `<img src="${item.img}" alt="${item.name}">
+                         <span>${item.name} - R$ ${parseFloat(item.price).toFixed(2)}</span>
+                         <button class="remove-cart" data-index="${i}">&#x1F5D1;</button>`;
+        cont.appendChild(div);
+      });
+      document.querySelectorAll('.remove-cart').forEach(btn => {
+        btn.onclick = () => {
+          cart.splice(btn.dataset.index, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        };
+      });
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
+
+    document.getElementById('admin-link').onclick = (e) => { e.preventDefault(); openModal('login-modal'); };
+    document.getElementById('cart-link').onclick = () => openModal('cart-modal');
+    document.querySelectorAll('.close').forEach(x => x.onclick = () => closeAll());
+    window.onclick = e => { if (e.target.classList.contains('modal')) closeAll(); };
+
+    document.getElementById('login-btn').onclick = () => {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      if (u==='admin' && p==='senha123') {
+        isAdmin=true;
+        closeAll();
+        openModal('admin-panel');
         render(); renderAdminList();
-      };
-    });
-    document.querySelectorAll('.admin-edit').forEach(btn => {
-      btn.onclick = () => {
-        const idx = btn.dataset.index;
-        const p = prods[idx];
-        document.getElementById('prod-id').value = idx;
-        document.getElementById('prod-name').value = p.name;
-        document.getElementById('prod-img').value = p.img;
-        document.getElementById('prod-price').value = p.price;
-        document.getElementById('prod-desc').value = p.desc;
-        open('admin-panel');
-      };
-    });
-  }
+      } else alert('Credenciais inválidas');
+    };
 
-  function renderCart() {
-    const cont = document.getElementById('cart-items'); cont.innerHTML = '';
-    cart.forEach((item, i) => {
-      const div = document.createElement('div'); div.className = 'cart-item';
-      div.innerHTML = `<img src=\"${item.img}\" alt=\"${item.name}\">      
-                       <span>${item.name} - R$ ${parseFloat(item.price).toFixed(2)}</span>
-                       <button class=\"remove-cart\" data-index=\"${i}\">&#x1F5D1;</button>`;
-      cont.appendChild(div);
-    });
-    document.querySelectorAll('.remove-cart').forEach(btn => {
-      btn.onclick = () => {
-        cart.splice(btn.dataset.index, 1);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        renderCart();
-      };
-    });
-  }
+    document.getElementById('save-prod').onclick = () => {
+      const idx = document.getElementById('prod-id').value;
+      const name = document.getElementById('prod-name').value.trim();
+      const img = document.getElementById('prod-img').value.trim();
+      const price = document.getElementById('prod-price').value.trim();
+      const desc = document.getElementById('prod-desc').value.trim();
+      if (name && img && price && desc) {
+        if (idx !== '') {
+          prods[idx] = { name, img, price, desc };
+        } else {
+          prods.push({ name, img, price, desc });
+        }
+        localStorage.setItem('brinquedosProds', JSON.stringify(prods));
+        closeAll();
+        render(); renderAdminList();
+        document.getElementById('prod-id').value = '';
+        document.getElementById('prod-name').value = '';
+        document.getElementById('prod-img').value = '';
+        document.getElementById('prod-price').value = '';
+        document.getElementById('prod-desc').value = '';
+      } else alert('Preencha todos os campos');
+    };
 
-  const open = id => document.getElementById(id).classList.add('open');
-  const closeAll = () => document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+    document.getElementById('checkout-btn').onclick = () => {
+      if (cart.length === 0) { alert('Carrinho vazio'); return; }
+      let msg = 'Olá, gostaria de realizar o pedido:';
+      cart.forEach(item => { msg += `\n- ${item.name} (R$ ${parseFloat(item.price).toFixed(2)})`; });
+      const encoded = encodeURIComponent(msg);
+      const waNumber = '5583996138889';
+      window.open(`https://wa.me/${waNumber}?text=${encoded}`, '_blank');
+      cart = [];
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+      closeAll();
+    };
 
-  document.getElementById('admin-link').onclick = () => open('login-modal');
-  document.getElementById('cart-link').onclick = () => open('cart-modal');
-  document.querySelectorAll('.close').forEach(x => x.onclick = () => closeAll());
-  window.onclick = e => { if (e.target.classList.contains('modal')) closeAll(); };
+    render(); renderAdminList(); renderCart();
+  });
+</script>
+</body>
+</html>
 
-  document.getElementById('login-btn').onclick = () => {
-    const u = document.getElementById('username').value;
-    const p = document.getElementById('password').value;
-    if (u==='admin' && p==='senha123') { isAdmin=true; closeAll(); render(); renderAdminList(); } else alert('Credenciais inválidas');
-  };
-
-  document.getElementById('save-prod').onclick = () => {
-    const idx = document.getElementById('prod-id').value;
-    const name = document.getElementById('prod-name').value.trim();
-    const img = document.getElementById('prod-img').value.trim();
-    const price = document.getElementById('prod-price').value.trim();
-    const desc = document.getElementById('prod-desc').value.trim();
-    if(name && img && price && desc){
-      if(idx!=='') prods[idx] = {name,img,price,desc}; else prods.push({name,img,price,desc});
-      localStorage.setItem('brinquedosProds', JSON.stringify(prods)); closeAll(); render(); renderAdminList();
-      document.getElementById('prod-id').value='';
-      document.getElementById('prod-name').value='';
-      document.getElementById
