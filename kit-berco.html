@@ -241,10 +241,10 @@
   window.onclick = e => { if(e.target.classList.contains('modal')) closeAll(); };
 
   document.getElementById('login-btn').onclick = ()=>{
-    const u=document.getElementById('username').value;
-    const p=document.getElementById('password').value;
-    if(u==='admin'&&p==='senha123'){ isAdmin=true; closeAll(); render(); renderAdminList(); } else alert('Credenciais inválidas');
-  };
+      const u=document.getElementById('username').value;
+      const p=document.getElementById('password').value;
+      if(u==='admin'&&p==='senha123'){ isAdmin=true; closeAll(); open('admin-panel'); render(); renderAdminList(); } else alert('Credenciais inválidas');
+    };
 
   document.getElementById('save-prod').onclick = ()=>{
     const idx = document.getElementById('prod-id').value;
