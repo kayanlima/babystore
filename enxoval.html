@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enxoval - Jaciara Baby & Kids</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Fredoka',sans-serif; }
+    body { background:#fffaf5; color:#6A2E98; }
+
+    /* Cabeçalho fixo (sem empilhar no mobile) */
+    header {
+      background:#fff;
+      padding:10px 20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:3px solid #F99F38;
+    }
+    .logo { height:40px; }
+    nav {
+      display:flex;
+      gap:12px;
+      overflow-x:auto;
+      white-space:nowrap;
+      align-items:center;
+    }
+    nav a {
+      text-decoration:none;
+      color:#6A2E98;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+    nav a.active { color:#EF5FA2; }
+    .cart-icon {
+      font-size:20px;
+      color:#6A2E98;
+      cursor:pointer;
+      margin-left:8px;
+      flex-shrink:0;
+    }
+
+    main { padding:20px; }
+    h1 { font-size:28px; color:#EF5FA2; margin-bottom:12px; text-align:center; }
+    p { font-size:16px; margin-bottom:16px; text-align:center; }
+
+    /* Grid com 3 colunas fixas */
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
+      padding:20px;
+    }
+    .card {
+      background:#fff;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      padding:10px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .card img {
+      width:100%;
+      border-radius:4px;
+      height:280px;
+      object-fit:cover;
+      margin-bottom:8px;
+    }
+    .card h3 { font-size:18px; color:#6A2E98; margin:8px 0 5px; }
+    .card p { font-size:14px; color:#505050; flex-grow:1; margin-bottom:8px; }
+    .price { font-weight:bold; color:#333; margin-bottom:8px; }
+    .card-buttons { display:flex; justify-content:space-between; margin-top:8px; }
+    .card-buttons button {
+      padding:6px 10px;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .edit-btn { background:#F4A72B; color:#fff; }
+    .cart-btn { background:#6A2E98; color:#fff; }
+    .delete-btn { background:transparent; border:none; color:#E74C3C; cursor:pointer; }
+
+    .modal {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.4);
+      justify-content:center;
+      align-items:center;
+      z-index:1000;
+    }
+    .modal.open { display:flex; }
+    .modal-content {
+      background:#fff;
+      padding:20px;
+      border-radius:8px;
+      width:90%;
+      max-width:400px;
+      position:relative;
+    }
+    .modal-content h2 { margin-bottom:12px; color:#EF5FA2; font-size:20px; text-align:center; }
+    .modal-content input, .modal-content textarea, .modal-content button {
+      width:100%;
+      margin:6px 0;
+      padding:8px;
+      font-size:14px;
+    }
+    .close {
+      position:absolute;
+      top:10px;
+      right:15px;
+      font-size:24px;
+      cursor:pointer;
+      color:#aaa;
+    }
+    .close:hover { color:#000; }
+    .primary {
+      background:#F99F38;
+      color:#fff;
+      border:none;
+      padding:8px;
+      border-radius:4px;
+      cursor:pointer;
+    }
+    .primary:hover { background:#EC74A7; }
+
+    #cart-items { max-height:150px; overflow-y:auto; margin-bottom:8px; }
+    .cart-item {
+      display:flex;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .cart-item img {
+      width:40px;
+      height:40px;
+      object-fit:cover;
+      border-radius:4px;
+      margin-right:8px;
+    }
+    .cart-item span { flex:1; font-size:12px; }
+    .cart-item button {
+      background:transparent;
+      border:none;
+      color:#E74C3C;
+      cursor:pointer;
+      font-size:16px;
+    }
+
+    footer {
+      text-align:center;
+      padding:20px;
+      background:#FDE6F2;
+      color:#6A2E98;
+      font-size:12px;
+    }
+
+    /* Responsividade */
+    @media(max-width:900px) {
+      .grid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media(max-width:600px) {
+      header { padding:8px 12px; }
+      nav { gap:8px; }
+      nav a { font-size:12px; }
+      h1 { font-size:24px; }
+      p { font-size:14px; }
+      .grid { grid-template-columns:1fr; gap:12px; padding:12px; }
+      .card img { height:200px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo-jaciara.png" alt="Jaciara Baby & Kids" class="logo">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="kit-berco.html">Kit Berço</a>
+      <a href="roupas.html">Roupas</a>
+      <a href="alimentacao.html">Alimentação</a>
+      <a href="enxoval.html" class="active">Enxoval</a>
+      <a href="brinquedos.html">Brinquedos</a>
+      <a href="ofertas.html">Ofertas</a>
+      <a href="#" id="admin-btn">Admin</a>
+      <i class="fas fa-shopping-cart cart-icon" id="cart-btn" title="Carrinho"></i>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Enxoval para Bebê</h1>
+    <p>Descubra roupas, acessórios e itens essenciais para compor o enxoval do seu bebê com muito estilo e conforto.</p>
+    <div class="grid" id="products"></div>
+  </main>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-close="login-modal">&times;</span>
+      <h2>Login Admin</h2>
+      <input id="username" placeholder="Usuário">
+      <input id="password" type="password" placeholder="Senha">
+      <button class="primary" id="login">Entrar</button>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div id="admin-panel" class="modal">
+    <div class="modal-content">
+      <span class="close" data-close="admin-panel">&times;</span>
+      <h2>Painel Admin</h2>
+      <input id="prod-id" type="hidden">
+      <input id="prod-name" placeholder="Nome do Produto">
+      <input id="prod-img" placeholder="URL da Imagem">
+      <input id="prod-price" placeholder="Preço">
+      <textarea id="prod-desc" rows="3" placeholder="Descrição"></textarea>
+      <button class="primary" id="save-prod">Salvar Produto</button>
+      <div id="admin-items" style="margin-top:10px; max-height:150px; overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div id="cart-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-close="cart-modal">&times;</span>
+      <h2>Carrinho de Compras</h2>
+      <div id="cart-items"></div>
+      <button class="primary" id="checkout">Finalizar Compra</button>
+    </div>
+  </div>
+
+  <footer>
+    Projeto de exemplo para a loja Jaciara Baby & Kids.<br>Todos os direitos reservados.
+  </footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    let items = JSON.parse(localStorage.getItem('enxovalItems')) || [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let isAdmin = false;
+
+    function render() {
+      const container = document.getElementById('products');
+      container.innerHTML = '';
+      items.forEach((p, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        let controls = `<button class="cart-btn" data-index="${i}"><i class="fas fa-cart-plus"></i></button>`;
+        if (isAdmin) {
+          controls = `
+            <button class="edit-btn" data-index="${i}">✎</button>
+            <button class="delete-btn" data-index="${i}">🗑</button>
+            ${controls}
+          `;
+        }
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <div class="price">R$ ${parseFloat(p.price).toFixed(2)}</div>
+          <div class="card-buttons">${controls}</div>
+        `;
+        container.appendChild(card);
+      });
+      attachListeners();
+    }
+
+    function attachListeners() {
+      document.querySelectorAll('.cart-btn').forEach(btn => {
+        btn.onclick = () => {
+          const prod = items[btn.dataset.index];
+          cart.push(prod);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        };
+      });
+      if (isAdmin) {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.onclick = () => {
+            items.splice(btn.dataset.index, 1);
+            localStorage.setItem('enxovalItems', JSON.stringify(items));
+            render(); renderAdminList();
+          };
+        });
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+          btn.onclick = () => {
+            const idx = btn.dataset.index;
+            const p = items[idx];
+            document.getElementById('prod-id').value = idx;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-img').value = p.img;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-desc').value = p.desc;
+            openModal('admin-panel');
+          };
+        });
+      }
+    }
+
+    function renderAdminList() {
+      const list = document.getElementById('admin-items');
+      list.innerHTML = '';
+      items.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'admin-item';
+        div.innerHTML = `<span>${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
+                          <button class="admin-edit" data-index="${i}">Editar</button>
+                          <button class="admin-delete" data-index="${i}">Excluir</button>`;
+        list.appendChild(div);
+      });
+      document.querySelectorAll('.admin-delete').forEach(btn => {
+        btn.onclick = () => {
+          items.splice(btn.dataset.index, 1);
+          localStorage.setItem('enxovalItems', JSON.stringify(items));
+          render(); renderAdminList();
+        };
+      });
+      document.querySelectorAll('.admin-edit').forEach(btn => {
+        btn.onclick = () => {
+          const idx = btn.dataset.index;
+          const p = items[idx];
+          document.getElementById('prod-id').value = idx;
+          document.getElementById('prod-name').value = p.name;
+          document.getElementById('prod-img').value = p.img;
+          document.getElementById('prod-price').value = p.price;
+          document.getElementById('prod-desc').value = p.desc;
+          openModal('admin-panel');
+        };
+      });
+    }
+
+    function renderCart() {
+      const cartContainer = document.getElementById('cart-items');
+      cartContainer.innerHTML = '';
+      cart.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <img src="${item.img}" alt="${item.name}">
+          <span>${item.name} - R$ ${parseFloat(item.price).toFixed(2)}</span>
+          <button data-index="${idx}">&times;</button>
+        `;
+        cartContainer.appendChild(div);
+      });
+      document.querySelectorAll('#cart-items button').forEach(btn => {
+        btn.onclick = () => {
+          cart.splice(btn.dataset.index, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        };
+      });
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+    document.querySelectorAll('.close').forEach(span => {
+      span.onclick = () => closeModal(span.dataset.close);
+    });
+
+    document.getElementById('admin-btn').onclick = () => {
+      if (!isAdmin) {
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        openModal('login-modal');
+      } else {
+        document.getElementById('prod-id').value = '';
+        document.getElementById('prod-name').value = '';
+        document.getElementById('prod-img').value = '';
+        document.getElementById('prod-price').value = '';
+        document.getElementById('prod-desc').value = '';
+        openModal('admin-panel');
+      }
+    };
+
+    document.getElementById('login').onclick = () => {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      if (user === 'admin' && pass === 'senha123') {
+        isAdmin = true;
+        closeModal('login-modal');
+        render();
+        renderAdminList();
+        openModal('admin-panel');
+      } else {
+        alert('Credenciais inválidas');
+      }
+    };
+
+    document.getElementById('save-prod').onclick = () => {
+      const id   = document.getElementById('prod-id').value;
+      const nome = document.getElementById('prod-name').value;
+      const img  = document.getElementById('prod-img').value;
+      const preço= document.getElementById('prod-price').value;
+      const desc = document.getElementById('prod-desc').value;
+      if (nome && img && preço) {
+        if (id !== '') {
+          items[id] = { name: nome, img, price: preço, desc };
+        } else {
+          items.push({ name: nome, img, price: preço, desc });
+        }
+        localStorage.setItem('enxovalItems', JSON.stringify(items));
+        render();
+        renderAdminList();
+      } else {
+        alert('Preencha nome, imagem e preço.');
+      }
+    };
+
+    document.getElementById('cart-btn').onclick = () => {
+      renderCart();
+      openModal('cart-modal');
+    };
+
+    document.getElementById('checkout').onclick = () => {
+      cart = [];
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+      closeModal('cart-modal');
+      alert('Compra finalizada!');
+    };
+
+    render();
+    renderAdminList();
+    renderCart();
+  });
+</script>
+</body>
+</html>
