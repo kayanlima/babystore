@@ -250,7 +250,12 @@
   document.getElementById('login-btn').onclick = () => {
     const u = document.getElementById('username').value;
     const p = document.getElementById('password').value;
-    if (u==='admin' && p==='senha123') { isAdmin=true; closeAll(); render(); renderAdminList(); } else alert('Credenciais inválidas');
+    if (u==='admin' && p==='senha123') {
+      isAdmin = true;
+      closeAll();
+      open('admin-panel');
+      render(); renderAdminList();
+    } else alert('Credenciais inválidas');
   };
 
   document.getElementById('save-prod').onclick = () => {
