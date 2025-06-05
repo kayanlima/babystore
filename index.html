@@ -23,7 +23,7 @@
     .banner button { background:#F99F38; color:#fff; border:none; padding:10px 20px; border-radius:30px; font-size:16px; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
     .banner button:hover { background:#EC74A7; }
 
-    /* Carousel of category icons */
+    /* Carousel */
     .carousel-icons { background:#D1F0F7; overflow:hidden; padding:15px 0; }
     .carousel-inner { display:flex; width:max-content; }
     .carousel-item { flex:0 0 25%; text-align:center; padding:0 10px; }
@@ -34,7 +34,7 @@
     /* Sections Titles */
     .section-title { font-size:24px; color:#EF5FA2; text-align:center; margin:30px 0 15px; }
 
-    /* Slider Section */
+    /* Slider */
     .slider-section { position:relative; padding:0 20px 40px; }
     .slider-container { overflow:hidden; }
     .slider-inner { display:flex; transition:transform 0.5s ease-in-out; }
@@ -81,10 +81,10 @@
     .admin-edit { background:#F4A72B; color:#fff; }
     .admin-delete { background:#fff; color:#E74C3C; border:1px solid #E74C3C; }
 
-    /* Footer bar */
+    /* Footer */
     footer { text-align:center; font-size:12px; padding:15px; background:#FDE6F2; color:#6A2E98; }
 
-    /* Responsive adjustments */
+    /* Responsive */
     @media(max-width:900px) { .slider-item { flex:0 0 50%; } }
     @media(max-width:600px) {
       header { flex-direction:column; align-items:flex-start; }
@@ -115,14 +115,11 @@
     </nav>
   </header>
 
-  <!-- Banner principal -->
   <section class="banner">
-    <h1>Novidades Jaciara Baby & Kids</h1>
-    <p>Venha conferir a nova coleção Pituchinhus!</p>
+    <h1>Novidades Jaciara Baby & Kids</n    <p>Venha conferir a nova coleção Pituchinhus!</p>
     <button>Clique aqui e confira</button>
   </section>
 
-  <!-- Carrossel de ícones de categorias -->
   <section class="carousel-icons">
     <div class="carousel-inner" id="carousel-icons-inner">
       <div class="carousel-item">
@@ -145,7 +142,6 @@
         <div class="icon-circle"><i class="fas fa-couch"></i></div>
         <span>Kit Berço</span>
       </div>
-      <!-- cópias para loop -->
       <div class="carousel-item">
         <div class="icon-circle"><i class="fas fa-tshirt"></i></div>
         <span>Roupas</span>
@@ -157,7 +153,6 @@
     </div>
   </section>
 
-  <!-- Seção Novidades -->
   <div class="slider-section">
     <h2 class="section-title">Novidades</h2>
     <div class="slider-container">
@@ -167,7 +162,6 @@
     <div class="slider-nav slider-next" id="next-novidades"><i class="fas fa-chevron-right"></i></div>
   </div>
 
-  <!-- Seção Destaques -->
   <div class="slider-section">
     <h2 class="section-title">Destaques</h2>
     <div class="slider-container">
@@ -177,7 +171,6 @@
     <div class="slider-nav slider-next" id="next-destaques"><i class="fas fa-chevron-right"></i></div>
   </div>
 
-  <!-- Modal Login Admin -->
   <div id="login-modal" class="modal">
     <div class="modal-content">
       <span class="close" data-close="login-modal">&times;</span>
@@ -188,7 +181,6 @@
     </div>
   </div>
 
-  <!-- Modal Painel Admin -->
   <div id="admin-panel" class="modal">
     <div class="modal-content">
       <span class="close" data-close="admin-panel">&times;</span>
@@ -207,7 +199,6 @@
     </div>
   </div>
 
-  <!-- Modal Carrinho -->
   <div id="cart-modal" class="modal">
     <div class="modal-content">
       <span class="close" data-close="cart-modal">&times;</span>
@@ -217,19 +208,16 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     Projeto de exemplo para a loja Jaciara Baby & Kids.<br>
     Todos os direitos reservados.
   </footer>
 
 <script>
-  // Estado inicial
   let products = JSON.parse(localStorage.getItem('products')) || [];
   let cart = JSON.parse(localStorage.getItem('cart')) || [];
   let isAdmin = false;
 
-  // Renderiza sliders Novidades e Destaques
   function renderSliders() {
     const novInner = document.getElementById('novidades-slider');
     const destInner = document.getElementById('destaques-slider');
@@ -243,7 +231,7 @@
          <button class=\"delete-btn\" data-index=\"${i}\">🗑</button>` : '';
       const html = `
         <div class=\"produto-card\">
-          <img src=\"${p.img}\" alt=\"${p.name}\">
+          <img src=\"${p.img}\" alt=\"${p.name}\"> 
           <h3>${p.name}</h3>
           <p>${p.desc}</p>
           <div class=\"price\">R$ ${parseFloat(p.price).toFixed(2)}</div>
@@ -260,7 +248,6 @@
     attachProductListeners();
   }
 
-  // Anexa listeners aos botões de produtos
   function attachProductListeners() {
     document.querySelectorAll('.add-cart').forEach(btn => {
       btn.onclick = () => {
@@ -294,7 +281,6 @@
     }
   }
 
-  // Renderiza lista de produtos no painel admin
   function renderAdminList() {
     const list = document.getElementById('admin-produtos'); list.innerHTML = '';
     products.forEach((p, i) => {
@@ -326,7 +312,6 @@
     });
   }
 
-  // Renderiza carrinho
   function renderCart() {
     const cont = document.getElementById('cart-items'); cont.innerHTML = '';
     cart.forEach((item, i) => {
@@ -345,18 +330,17 @@
     });
   }
 
-  // Abre modal
   function openModal(id) { document.getElementById(id).classList.add('open'); }
-  // Fecha todos os modais
   function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
 
-  // Eventos de abertura de modais
   document.getElementById('admin-link').onclick = () => openModal('login-modal');
-  document.getElementById('cart-link').onclick = () => openModal('cart-modal');
+  document.getElementById('cart-link').onclick = () => {
+    renderCart();
+    openModal('cart-modal');
+  };
   document.querySelectorAll('.close').forEach(btn => btn.onclick = () => closeAll());
   window.onclick = e => { if (e.target.classList.contains('modal')) closeAll(); };
 
-  // Lógica de login admin
   document.getElementById('login-btn').onclick = () => {
     const u = document.getElementById('username').value;
     const p = document.getElementById('password').value;
@@ -371,7 +355,6 @@
     }
   };
 
-  // Salvar ou editar produto
   document.getElementById('save-prod').onclick = () => {
     const idx = document.getElementById('prod-id').value;
     const name = document.getElementById('prod-name').value.trim();
@@ -387,8 +370,7 @@
       }
       localStorage.setItem('products', JSON.stringify(products));
       closeAll();
-      renderSliders();
-      renderAdminList();
+      renderSliders(); renderAdminList();
       document.getElementById('prod-id').value = '';
       document.getElementById('prod-name').value = '';
       document.getElementById('prod-img').value = '';
@@ -399,13 +381,10 @@
     }
   };
 
-  // Checkout via WhatsApp
   document.getElementById('checkout-btn').onclick = () => {
     if (cart.length === 0) { alert('Carrinho vazio'); return; }
     let msg = 'Olá, gostaria de realizar o pedido:';
-    cart.forEach(item => {
-      msg += `\n- ${item.name} (R$ ${parseFloat(item.price).toFixed(2)})`;
-    });
+    cart.forEach(item => { msg += `\n- ${item.name} (R$ ${parseFloat(item.price).toFixed(2)})`; });
     const encoded = encodeURIComponent(msg);
     const waNumber = '5583996138889';
     window.open(`https://wa.me/${waNumber}?text=${encoded}`, '_blank');
@@ -415,12 +394,10 @@
     closeAll();
   };
 
-  // Inicialização
   renderSliders();
   renderAdminList();
   renderCart();
 
-  // Animação carrossel de ícones (rolagem contínua)
   const iconsInner = document.getElementById('carousel-icons-inner');
   let pos = 0;
   function animateIcons() {
@@ -431,7 +408,6 @@
   }
   animateIcons();
 
-  // Controles dos sliders
   function setupSlider(prevId, nextId, innerId) {
     const prev = document.getElementById(prevId);
     const next = document.getElementById(nextId);
@@ -449,30 +425,31 @@
   }
   setupSlider('prev-novidades', 'next-novidades', 'novidades-slider');
   setupSlider('prev-destaques', 'next-destaques', 'destaques-slider');
+</script>
+
 <script>
 const apiURL = "https://confirmed-trail-pomegranate.glitch.me/api/produtos";
-let products = [];
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
-let isAdmin = false;
+let productsAPI = [];
+let cartAPI = JSON.parse(localStorage.getItem('cart')) || [];
+let isAdminAPI = false;
 
-// Buscar produtos da API
 function fetchProducts() {
   fetch(apiURL)
     .then(res => res.json())
     .then(data => {
-      products = data.map(p => ({
+      productsAPI = data.map((p, i) => ({
         name: p.name || p.nome,
         img: p.img || p.imagem,
         price: p.price || p.preco,
         desc: p.desc || '',
         section: p.section || 'novidade'
       }));
+      products = productsAPI;
       renderSliders();
       renderAdminList();
     });
 }
 
-// Salvar novo produto no backend
 function salvarProdutoNoBackend(prod) {
   fetch(apiURL, {
     method: "POST",
@@ -483,7 +460,6 @@ function salvarProdutoNoBackend(prod) {
     .then(() => fetchProducts());
 }
 
-// Editar produto no backend
 function editarProdutoNoBackend(idx, prod) {
   fetch(`${apiURL}/${idx}`, {
     method: "PUT",
@@ -494,7 +470,6 @@ function editarProdutoNoBackend(idx, prod) {
     .then(() => fetchProducts());
 }
 
-// Excluir produto no backend
 function excluirProdutoDoBackend(idx) {
   fetch(`${apiURL}/${idx}`, {
     method: "DELETE",
@@ -505,7 +480,6 @@ function excluirProdutoDoBackend(idx) {
     .then(() => fetchProducts());
 }
 
-// Salvar ou editar produto
 function salvarProdutoLocalOuBackend(idx, prod) {
   if (idx !== '') {
     editarProdutoNoBackend(idx, prod);
@@ -514,7 +488,6 @@ function salvarProdutoLocalOuBackend(idx, prod) {
   }
 }
 
-// Substituir save-prod
 setTimeout(() => {
   document.getElementById('save-prod').onclick = () => {
     const idx = document.getElementById('prod-id').value;
@@ -538,7 +511,6 @@ setTimeout(() => {
   };
 }, 500);
 
-// Substituir exclusão local por backend
 setTimeout(() => {
   document.addEventListener('click', e => {
     if (e.target.classList.contains('delete-btn') || e.target.classList.contains('admin-delete')) {
@@ -548,11 +520,9 @@ setTimeout(() => {
   });
 }, 500);
 
-// Inicialização da loja
 fetchProducts();
 renderCart();
 </script>
 </body>
 </html>
-
 
