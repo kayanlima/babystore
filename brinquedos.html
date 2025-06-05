@@ -292,6 +292,101 @@
 
     render(); renderAdminList(); renderCart();
   });
+  <script>
+const apiURL = "https://confirmed-trail-pomegranate.glitch.me/api/produtos";
+let productsAPI = [];
+let cartAPI = JSON.parse(localStorage.getItem('cart')) || [];
+let isAdminAPI = false;
+
+function fetchProducts() {
+  fetch(apiURL)
+    .then(res => res.json())
+    .then(data => {
+      productsAPI = data.map((p, i) => ({
+        name: p.name || p.nome,
+        img: p.img || p.imagem,
+        price: p.price || p.preco,
+        desc: p.desc || '',
+        section: p.section || 'novidade'
+      }));
+      products = productsAPI;
+      renderSliders();
+      renderAdminList();
+    });
+}
+
+function salvarProdutoNoBackend(prod) {
+  fetch(apiURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ senha: "senha123", produto: prod })
+  })
+    .then(res => res.json())
+    .then(() => fetchProducts());
+}
+
+function editarProdutoNoBackend(idx, prod) {
+  fetch(`${apiURL}/${idx}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ senha: "senha123", produto: prod })
+  })
+    .then(res => res.json())
+    .then(() => fetchProducts());
+}
+
+function excluirProdutoDoBackend(idx) {
+  fetch(`${apiURL}/${idx}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ senha: "senha123" })
+  })
+    .then(res => res.json())
+    .then(() => fetchProducts());
+}
+
+function salvarProdutoLocalOuBackend(idx, prod) {
+  if (idx !== '') {
+    editarProdutoNoBackend(idx, prod);
+  } else {
+    salvarProdutoNoBackend(prod);
+  }
+}
+
+setTimeout(() => {
+  document.getElementById('save-prod').onclick = () => {
+    const idx = document.getElementById('prod-id').value;
+    const name = document.getElementById('prod-name').value.trim();
+    const img = document.getElementById('prod-img').value.trim();
+    const price = document.getElementById('prod-price').value.trim();
+    const desc = document.getElementById('prod-desc').value.trim();
+    const section = document.getElementById('prod-section').value;
+    if (name && img && price && desc) {
+      const novoProduto = { name, img, price, desc, section };
+      salvarProdutoLocalOuBackend(idx, novoProduto);
+      closeAll();
+      document.getElementById('prod-id').value = '';
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-img').value = '';
+      document.getElementById('prod-price').value = '';
+      document.getElementById('prod-desc').value = '';
+    } else {
+      alert('Preencha todos os campos');
+    }
+  };
+}, 500);
+
+setTimeout(() => {
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('delete-btn') || e.target.classList.contains('admin-delete')) {
+      const idx = e.target.dataset.index;
+      excluirProdutoDoBackend(idx);
+    }
+  });
+}, 500);
+
+fetchProducts();
+renderCart();
 </script>
 </body>
 </html>
